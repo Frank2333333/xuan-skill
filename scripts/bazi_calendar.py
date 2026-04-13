@@ -40,6 +40,35 @@ class DayunResult:
     note: str
 
 
+MONTH_STEM_START = {
+    "甲": "丙",
+    "己": "丙",
+    "乙": "戊",
+    "庚": "戊",
+    "丙": "庚",
+    "辛": "庚",
+    "丁": "壬",
+    "壬": "壬",
+    "戊": "甲",
+    "癸": "甲",
+}
+
+APPROX_SOLAR_MONTH_BOUNDARIES = (
+    ("寅", (2, 4), "立春"),
+    ("卯", (3, 6), "惊蛰"),
+    ("辰", (4, 5), "清明"),
+    ("巳", (5, 6), "立夏"),
+    ("午", (6, 6), "芒种"),
+    ("未", (7, 7), "小暑"),
+    ("申", (8, 8), "立秋"),
+    ("酉", (9, 8), "白露"),
+    ("戌", (10, 8), "寒露"),
+    ("亥", (11, 7), "立冬"),
+    ("子", (12, 7), "大雪"),
+    ("丑", (1, 6), "小寒"),
+)
+
+
 def ganzhi_from_indexes(tg: int, dz: int) -> str:
     return GAN[tg % 10] + ZHI[dz % 12]
 
@@ -60,6 +89,57 @@ def normalize_sex(value: str) -> str:
     if normalized is None:
         raise ValueError("sex must be male/female/男/女")
     return normalized
+
+
+def gregorian_year_stem(year: int) -> str:
+    return GAN[(year - 4) % 10]
+
+
+def build_month_pillars(year_stem: str) -> list[str]:
+    if year_stem not in MONTH_STEM_START:
+        raise ValueError("year_stem must be one Chinese heavenly stem")
+
+    start_stem = MONTH_STEM_START[year_stem]
+    stem_idx = GAN.index(start_stem)
+    branch_idx = ZHI.index("寅")
+    pillars: list[str] = []
+    for offset in range(12):
+        pillars.append(GAN[(stem_idx + offset) % 10] + ZHI[(branch_idx + offset) % 12])
+    return pillars
+
+
+def approx_month_ranges(year: int, year_stem: str) -> list[dict[str, Any]]:
+    pillars = build_month_pillars(year_stem)
+    ranges: list[dict[str, Any]] = []
+
+    for idx, ((branch, (month, day), boundary_name), pillar) in enumerate(
+        zip(APPROX_SOLAR_MONTH_BOUNDARIES, pillars),
+        start=1,
+    ):
+        start_year = year + 1 if month == 1 else year
+        if idx < len(APPROX_SOLAR_MONTH_BOUNDARIES):
+            next_month, next_day = APPROX_SOLAR_MONTH_BOUNDARIES[idx][1]
+            end_year = year + 1 if next_month == 1 else year
+            end_text = f"{end_year:04d}-{next_month:02d}-{next_day - 1:02d}"
+            next_boundary = APPROX_SOLAR_MONTH_BOUNDARIES[idx][2]
+        else:
+            end_text = f"{year + 1:04d}-02-03"
+            next_boundary = "立春"
+
+        start_text = f"{start_year:04d}-{month:02d}-{day:02d}"
+        ranges.append(
+            {
+                "index": idx,
+                "branch": branch,
+                "pillar": pillar,
+                "start": start_text,
+                "end": end_text,
+                "boundary": f"{boundary_name}~{next_boundary}",
+                "gregorian_hint": f"{start_text} to {end_text}",
+            }
+        )
+
+    return ranges
 
 
 def dayun_direction(year_stem: str, sex: str) -> str:
@@ -152,6 +232,21 @@ def command_pillars(args: argparse.Namespace) -> dict[str, Any]:
         }
 
 
+def command_months(args: argparse.Namespace) -> dict[str, Any]:
+    year_stem = args.year_stem or gregorian_year_stem(args.year)
+    return {
+        "ok": True,
+        "year": args.year,
+        "year_stem": year_stem,
+        "months": approx_month_ranges(args.year, year_stem),
+        "note": (
+            "Month ranges use approximate solar-term boundary dates for quick mapping "
+            "from li-chun of the given Gregorian year to the next li-chun. "
+            "For exact term timestamps, verify separately with a solar-term calendar."
+        ),
+    }
+
+
 def parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -170,6 +265,10 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     dayun.add_argument("--start-age-years", type=float, help="Known start age in decimal years.")
     dayun.add_argument("--count", type=int, default=10, help="Number of Da Yun pillars to output.")
 
+    months = subparsers.add_parser("months", help="Map a Gregorian year to approximate solar-month ranges and month pillars.")
+    months.add_argument("--year", type=int, required=True, help="Gregorian year, e.g. 2026.")
+    months.add_argument("--year-stem", help="Optional heavenly stem override for the year, e.g. 丙.")
+
     return parser.parse_args(argv)
 
 
@@ -181,6 +280,9 @@ def main(argv: list[str]) -> int:
             exit_code = 0 if payload.get("ok") else 2
         elif args.command == "dayun":
             payload = command_dayun(args)
+            exit_code = 0
+        elif args.command == "months":
+            payload = command_months(args)
             exit_code = 0
         else:
             raise AssertionError(args.command)
