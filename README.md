@@ -2,7 +2,7 @@
 ![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-blueviolet)
 ![AgentSkills](https://img.shields.io/badge/AgentSkills-Standard-green)
 
-# 赛博算命 Skill
+# xuan Skill
 
 基于 Claude Code / Codex 的八字命理画像与生涯复盘工具。主路径是用户直接给出四柱八字和性别，Skill 会用铁口直断式断语把命局结构转化为证据链清晰的人物画像；若补充出生年份、出生日期或起运信息，则按大运流年从出生推演到今天，复盘事业状态、感情经历、身体健康、迁移变化等关键事件及其影响。家庭事实不再从八字默认推断，只能以用户提供的现实信息为准。
 
@@ -56,17 +56,19 @@
 ```bash
 # 安装到当前项目（在 git 仓库根目录执行）
 mkdir -p .claude/skills
-git clone https://github.com/jinchenma94/bazi-skill .claude/skills/bazi
+git clone https://github.com/Frank2333333/xuan-skill .claude/skills/xuan
 
 # 或安装到全局（所有项目都能用）
-git clone https://github.com/jinchenma94/bazi-skill ~/.claude/skills/bazi
+git clone https://github.com/Frank2333333/xuan-skill ~/.claude/skills/xuan
 ```
 
 ## 使用
 
 在 Claude Code 中输入以下任意关键词即可触发：
 
-`算八字` `看八字` `批八字` `八字画像` `精确画像` `命理画像` `性格画像` `人生复盘` `生涯推演` `历史事件` `名家断法` `铁口直断` `四柱` `命盘` `算命` `排盘` `bazi`
+安装后的技能名为 `xuan`，同时保留 `bazi` 作为关键词别名。
+
+`xuan` `算八字` `看八字` `批八字` `八字画像` `精确画像` `命理画像` `性格画像` `人生复盘` `生涯推演` `历史事件` `名家断法` `铁口直断` `四柱` `命盘` `算命` `排盘` `bazi`
 
 推荐直接提供四柱八字和性别：
 
@@ -114,7 +116,7 @@ git clone https://github.com/jinchenma94/bazi-skill ~/.claude/skills/bazi
 ## 项目结构
 
 ```
-bazi-skill/
+xuan-skill/
 ├── SKILL.md                        # Skill 入口
 ├── references/                     # 参考文件
 │   ├── wuxing-tables.md            #   五行、天干地支、十神参考表

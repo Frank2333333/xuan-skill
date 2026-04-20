@@ -1,12 +1,12 @@
 ---
-name: bazi
+name: xuan
 description: >
   四柱八字命理画像与生涯事件复盘推演。Use this skill whenever the user asks for 八字、四柱、命理、算命、Bazi、
   birth chart analysis、八字画像、性格画像、精准画像、命理画像、人生复盘、生涯推演、历史事件推演、事业财运婚恋分析、
   现实语境校准、财富行为、事业财运、格局喜忌、大运流年、名家断法、铁口直断、一针见血断语, or provides four
   pillars plus gender. Triggers include: "算八字", "看八字", "批八字", "排八字", "四柱", "命盘", "算命",
   "帮我看看八字", "分析八字", "八字画像", "精准画像", "事业画像", "人生复盘", "生涯推演", "历史事件",
-  "名家断法", "财富阶层", "李淳风怎么看", "袁天罡怎么看", "财运", "婚恋", "大运", "流年", "bazi",
+  "名家断法", "财富阶层", "李淳风怎么看", "袁天罡怎么看", "财运", "婚恋", "大运", "流年", "xuan", "bazi",
   "fortune telling", "birth chart", "命运分析". 即使用户只是给出四柱干支而没有明确说要用 skill，也应使用此 skill。
 ---
 
